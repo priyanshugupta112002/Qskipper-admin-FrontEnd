@@ -11,7 +11,7 @@ import Foundation
 class Networking {
     
     static let shared = Networking()
-    let baseUrl = URL(string: "https://queueskipperbackend.onrender.com/")!
+    let baseUrl = URL(string: "https://qskipperbackend.onrender.com/")!
     
     
     enum NetworkingError : Error , LocalizedError{
@@ -85,7 +85,7 @@ class Networking {
         }
         let decoder = JSONDecoder()
         let userResponse = try decoder.decode(UserResponse.self, from: data)
-        print("hjhj")
+       
         print(userResponse)
         print("ccwdcd")
         

@@ -18,7 +18,7 @@ struct Restaurant: Codable {
 
     enum CodingKeys: String, CodingKey {
         case id = "_id"
-        case user
+        case user = "restaurantid"
         case restaurant_Name
         case bannerPhoto64Image
         case cuisine

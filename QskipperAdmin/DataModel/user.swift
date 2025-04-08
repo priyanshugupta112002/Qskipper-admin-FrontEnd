@@ -37,6 +37,7 @@ struct UserResponse : Codable{
     var resturantphoto : UIImage?
     var resturantCusine : String = ""
     
+    
     enum CodingKeys : String ,CodingKey{
         case id = "id"
         case restaurantid

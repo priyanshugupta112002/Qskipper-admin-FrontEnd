@@ -74,7 +74,7 @@ class LoginAndRegisterViewController: UIViewController {
               
                 if let response = try await Networking.shared.loginUser(currentUser: currentUser) {
                     if (response.restaurantid != ""){
-                        DataControlller.shared.set_Restaurant_Id(id: response.restaurantid)
+                        DataControlller.shared.set_Restaurant_Id(id: response.id)
                         DataControlller.shared.set_restaurant_cuisine(cuisine: response.resturantCusine)
                         DataControlller.shared.set_restaurant_estimatedTime(estimatedTime: response.resturantEstimateTime)
                         DataControlller.shared.set_restaurant(name: response.restaurantName)

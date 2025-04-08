@@ -2,26 +2,26 @@
 import Foundation
 
 struct orderResponse:Codable{
-    var id:String = ""
+    var length:Int = 0
 
     var order :[OrderProduct ] = []
 
         enum  CodingKeys: String, CodingKey {
-        case id = "_id"
-        case order
+        case length = "length"
+        case order = "all_orders"
     }
 
     
 }
 struct OrderProduct:Codable{
     var status:String = ""
-    var totalPrice :Int = 0
+    var totalPrice :String = ""
     var id :String = ""
     var items:[item] = []
     
     enum CodingKeys :String ,CodingKey{
-        case status
-        case totalPrice
+        case status = "status"
+        case totalPrice="totalAmount"
         case id = "_id"
         case items
     }
@@ -33,10 +33,10 @@ struct item:Codable{
     var product_price :Int = 0
     
     enum CodingKeys :String , CodingKey{
-        case id = "_id"
-        case product_name
-        case quantity
-        case product_price
+        case id = "productId"
+        case product_name = "name"
+        case quantity = "quantity"
+        case product_price = "price"
     }
 
 }
