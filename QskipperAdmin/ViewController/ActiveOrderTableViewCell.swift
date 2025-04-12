@@ -10,6 +10,7 @@ import UIKit
 
 protocol ActiveOrderCellDelegate: AnyObject {
     func didTapCompleteOrder(orderId: String, indexPath: Int)
+    func orderCompleted(updatedOrders: orderResponse)
 }
 class ActiveOrderTableViewCell: UITableViewCell {
     
@@ -38,11 +39,9 @@ class ActiveOrderTableViewCell: UITableViewCell {
     weak var delegate: ActiveOrderCellDelegate?
 
     @IBAction func OrderPlaced(_ sender: UIButton) {
-        
-        
-//        if let indexPath = indexPath {
-//                delegate?.didTapCompleteOrder(orderId: id, indexPath: indexPath)
-//            }
+        // Immediately disable button to prevent double taps
+        OrderPlaced.isEnabled = false
+        OrderPlaced.alpha = 0.5
         
         async {
             do {
@@ -54,19 +53,22 @@ class ActiveOrderTableViewCell: UITableViewCell {
                 debugPrint("order Complete")
                
                 await MainActor.run {
+                    // Update UI in this cell
                     OrderStatus.text = "Completed"
                     OrderPlaced.isHidden = true
                     
+                    // Notify the view controller of the update
+                    delegate?.orderCompleted(updatedOrders: updatedOrders)
                 }
             } catch {
-                print("Error fetching orders:", error)
+                print("Error completing order:", error)
+                // Re-enable button if there was an error
+                await MainActor.run {
+                    OrderPlaced.isEnabled = true
+                    OrderPlaced.alpha = 1.0
+                }
             }
         }
-        
-        
-        
-        
     }
-    
 }
 

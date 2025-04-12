@@ -16,7 +16,34 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-        guard let _ = (scene as? UIWindowScene) else { return }
+        guard let windowScene = (scene as? UIWindowScene) else { return }
+        
+        // Check if user is already logged in
+        if let savedUserId = UserDefaults.standard.string(forKey: "userId") {
+            // Restore user data
+            DataControlller.shared.setID(id: savedUserId)
+            
+            // Restore restaurant data if available
+            if let restaurantId = UserDefaults.standard.string(forKey: "restaurantId"),
+               let restaurantName = UserDefaults.standard.string(forKey: "restaurantName"),
+               let cuisine = UserDefaults.standard.string(forKey: "restaurantCuisine") {
+                
+                DataControlller.shared.set_Restaurant_Id(id: restaurantId)
+                DataControlller.shared.set_restaurant(name: restaurantName)
+                DataControlller.shared.set_restaurant_cuisine(cuisine: cuisine)
+                let estimatedTime = UserDefaults.standard.integer(forKey: "restaurantEstimatedTime")
+                DataControlller.shared.set_restaurant_estimatedTime(estimatedTime: estimatedTime)
+            }
+            
+            // Bypass login and go directly to main tab bar
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            if let mainTabBar = storyboard.instantiateViewController(withIdentifier: "MainTabBar") as? MainTabBarViewController {
+                window = UIWindow(windowScene: windowScene)
+                window?.rootViewController = mainTabBar
+                window?.makeKeyAndVisible()
+                print("Auto-login successful: Bypassing login screen")
+            }
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

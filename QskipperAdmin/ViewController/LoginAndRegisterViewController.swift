@@ -26,8 +26,34 @@ class LoginAndRegisterViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
        
-
-        
+        // Check if user is already logged in
+        if let savedUserId = UserDefaults.standard.string(forKey: "userId"),
+           let savedEmail = UserDefaults.standard.string(forKey: "userEmail"),
+           let savedPassword = UserDefaults.standard.string(forKey: "userPassword") {
+            
+            UserLogin_id.text = savedEmail
+            userLoginPassword.text = savedPassword
+            
+            // Auto login
+            Task {
+                let currentUser = user(email: savedEmail, password: savedPassword)
+                
+                do {
+                    if let response = try await Networking.shared.loginUser(currentUser: currentUser) {
+                        if (response.restaurantid != "") {
+                            DataControlller.shared.set_Restaurant_Id(id: response.id)
+                            DataControlller.shared.set_restaurant_cuisine(cuisine: response.resturantCusine)
+                            DataControlller.shared.set_restaurant_estimatedTime(estimatedTime: response.resturantEstimateTime)
+                            DataControlller.shared.set_restaurant(name: response.restaurantName)
+                        }
+                        DataControlller.shared.setID(id: response.id)
+                        navigateToHomeScreen()
+                    }
+                } catch {
+                    print("Auto-login failed: \(error)")
+                }
+            }
+        }
     }
 
     @IBAction func RegisterNewUser(_ sender: UIButton) {
@@ -79,9 +105,19 @@ class LoginAndRegisterViewController: UIViewController {
                         DataControlller.shared.set_restaurant_estimatedTime(estimatedTime: response.resturantEstimateTime)
                         DataControlller.shared.set_restaurant(name: response.restaurantName)
                         
-                        
+                        // Save restaurant data
+                        UserDefaults.standard.set(response.id, forKey: "restaurantId")
+                        UserDefaults.standard.set(response.restaurantName, forKey: "restaurantName")
+                        UserDefaults.standard.set(response.resturantCusine, forKey: "restaurantCuisine")
+                        UserDefaults.standard.set(response.resturantEstimateTime, forKey: "restaurantEstimatedTime")
                     }
                     DataControlller.shared.setID(id: response.id)
+                    
+                    // Save login credentials
+                    UserDefaults.standard.set(response.id, forKey: "userId")
+                    UserDefaults.standard.set(userName, forKey: "userEmail")
+                    UserDefaults.standard.set(userPassword, forKey: "userPassword")
+                    
                     debugPrint("after login")
                     debugPrint(DataControlller.shared.Currentuser)
                     debugPrint(DataControlller.shared.restaurant)
@@ -163,10 +199,14 @@ class LoginAndRegisterViewController: UIViewController {
         // Use data from the view controller which initiated the unwind segue
         DataControlller.shared.reset()
         
-        
-        
-        
-        
+        // Clear UserDefaults
+        UserDefaults.standard.removeObject(forKey: "userId")
+        UserDefaults.standard.removeObject(forKey: "userEmail")
+        UserDefaults.standard.removeObject(forKey: "userPassword")
+        UserDefaults.standard.removeObject(forKey: "restaurantId")
+        UserDefaults.standard.removeObject(forKey: "restaurantName")
+        UserDefaults.standard.removeObject(forKey: "restaurantCuisine")
+        UserDefaults.standard.removeObject(forKey: "restaurantEstimatedTime")
     }
     
     
