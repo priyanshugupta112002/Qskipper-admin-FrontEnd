@@ -44,7 +44,7 @@ class ActiveOrderViewController:UIViewController, UITableViewDataSource, UITable
     private func setupRefreshButton() {
         // Create and configure button
         refreshButton.setTitle("Tap for new orders", for: .normal)
-        refreshButton.backgroundColor = .systemBlue
+        refreshButton.backgroundColor = UIColor(red: 0.0, green: 0.7, blue: 0.0, alpha: 1.0)
         refreshButton.layer.cornerRadius = 10
         refreshButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         refreshButton.setTitleColor(.white, for: .normal)
@@ -68,40 +68,68 @@ class ActiveOrderViewController:UIViewController, UITableViewDataSource, UITable
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        return DataControlller.shared.order.order. Using actual count of data
-        return DataControlller.shared.orderRes.length
+        // Use the actual orders array count for reliability
+        return DataControlller.shared.orderRes.order.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "ActiveOrder", for: indexPath) as! ActiveOrderTableViewCell
         
-        let cuisineTypeForThisCell = DataControlller.shared.orderRes.order[indexPath.row]
-        var content = cell.defaultContentConfiguration()
+        let order = DataControlller.shared.orderRes.order[indexPath.row]
         
-        debugPrint( cuisineTypeForThisCell)
-        cell.id = cuisineTypeForThisCell.id
+        // Set cell properties
+        cell.id = order.id
         cell.indexPath = indexPath.row
-        cell.delegate = self  // Set the delegate to this view controller
-        cell.OrderAmount.text = "\(cuisineTypeForThisCell.totalPrice)"
-        cell.OrderStatus.text = cuisineTypeForThisCell.status
-        let orderText  = DataControlller.shared.orderRes.order[indexPath.row].items.map{"\(String(describing: $0.quantity)) x \($0.product_name)"}
+        cell.delegate = self
         
-        cell.OrderItem.text = orderText.joined(separator: "\n")
-        if cell.OrderStatus.text == "Completed" {
-                    cell.OrderPlaced.isEnabled = false
-                    cell.OrderPlaced.alpha = 0.5  // Optional: visually indicate the disabled state.
+        // Set order details with better formatting
+        cell.OrderAmount.text = "₹\(order.totalPrice)"
+        cell.OrderStatus.text = order.status
+        
+        // Format the items text to match the screenshot
+        let itemsCount = order.items.count
+        var formattedText = "Total Items: \(itemsCount)\n\n"
+        
+        // Format each item with price in parentheses - matching screenshot
+        for (i, item) in order.items.enumerated() {
+            formattedText += "\(i+1). \(item.quantity) x \(item.product_name) (₹\(item.product_price))\n"
+        }
+        
+        // Set the formatted text to the scrollable items list
+        cell.setItemsText(formattedText)
+        
+        // Set button style based on order status
+        // Always use green color for buttons, just change opacity when disabled
+        cell.OrderPlaced.backgroundColor = UIColor(red: 0.0, green: 0.7, blue: 0.0, alpha: 1.0)
+        
+        if order.status == "Completed" {
+            cell.OrderPlaced.isEnabled = false
+            cell.OrderPlaced.alpha = 0.5
+            cell.OrderPlaced.setTitle("Order Completed", for: .normal)
         } else {
-                    cell.OrderPlaced.isEnabled = true
-                    cell.OrderPlaced.alpha = 1.0
+            cell.OrderPlaced.isEnabled = true
+            cell.OrderPlaced.alpha = 1.0
+            cell.OrderPlaced.setTitle("Order Completed", for: .normal)
         }
 
-                return cell
+        return cell
     }
     
-    
+    // Use a fixed height for all cells with proper spacing
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        250
+        return 290  // Reduced height for more compact cells
+    }
+    
+    // Add spacing between cells for better visual separation
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        let footerView = UIView()
+        footerView.backgroundColor = UIColor.clear
+        return footerView
+    }
+    
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 10 // Space between cells
     }
     
     // MARK: - Fetch Orders
@@ -109,6 +137,16 @@ class ActiveOrderViewController:UIViewController, UITableViewDataSource, UITable
         async {
             do {
                 let response = try await productApi.shared.getAllOrder()
+                
+                // Debug logging to see full order data
+                print("Fetched \(response.order.count) orders")
+                for (i, order) in response.order.enumerated() {
+                    print("Order \(i+1): ID \(order.id), Status: \(order.status), Total: \(order.totalPrice)")
+                    print("Items count: \(order.items.count)")
+                    for (j, item) in order.items.enumerated() {
+                        print("  Item \(j+1): \(item.quantity) x \(item.product_name) (₹\(item.product_price))")
+                    }
+                }
                 
                 DataControlller.shared.set_orderResponse(getAllorder: response)
                 
@@ -156,7 +194,7 @@ class ActiveOrderViewController:UIViewController, UITableViewDataSource, UITable
         
         // Animation for visual feedback
         UIView.animate(withDuration: 0.2, animations: {
-            self.refreshButton.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.7)
+            self.refreshButton.backgroundColor = UIColor(red: 0.0, green: 0.7, blue: 0.0, alpha: 0.7)
             self.refreshButton.transform = CGAffineTransform(scaleX: 0.97, y: 0.97)
             self.refreshButton.setTitle("  Refreshing orders...", for: .normal)
         }, completion: { _ in
@@ -191,8 +229,14 @@ class ActiveOrderViewController:UIViewController, UITableViewDataSource, UITable
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // Setup table view
         activeOrderTableView.delegate = self
         activeOrderTableView.dataSource = self
+        
+        // Improve table view appearance
+        activeOrderTableView.separatorStyle = .none
+        activeOrderTableView.backgroundColor = UIColor(red: 0.97, green: 0.97, blue: 0.97, alpha: 1.0)
+        activeOrderTableView.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
         
         // Setup refresh control and navigation bar
         setupRefreshControl()
