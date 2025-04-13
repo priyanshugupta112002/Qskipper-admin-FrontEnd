@@ -85,7 +85,31 @@ class ActiveOrderViewController:UIViewController, UITableViewDataSource, UITable
         
         // Set order details with better formatting
         cell.OrderAmount.text = "₹\(order.totalPrice)"
+        
         cell.OrderStatus.text = order.status
+        
+        if (order.takeAway) {
+            cell.OrderPacked.text = "Take Away"
+        }else if let dateString = order.scheduleDate {
+            let inputFormatter = DateFormatter()
+                inputFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+                inputFormatter.locale = Locale(identifier: "en_US_POSIX")
+                inputFormatter.timeZone = TimeZone(secondsFromGMT: 0) // Backend sends in UTC
+
+                if let date = inputFormatter.date(from: dateString) {
+                    let outputFormatter = DateFormatter()
+                    outputFormatter.dateFormat = "dd MMM yyyy, h:mm a" // e.g., 13 Apr 2025, 12:30 PM
+                    outputFormatter.timeZone = TimeZone(identifier: "Asia/Kolkata") // Convert to IST
+
+                    cell.OrderPacked.text = outputFormatter.string(from: date)
+                } else {
+                    cell.OrderPacked.text = "Invalid date"
+                }
+        } else {
+            cell.OrderPacked.text = "Contact Custumner"
+        }
+        
+        
         
         // Format the items text to match the screenshot
         let itemsCount = order.items.count
