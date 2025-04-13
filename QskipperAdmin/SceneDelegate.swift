@@ -11,6 +11,29 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
+    // Helper method to reset app to login screen
+    func resetToLoginScreen() {
+        guard let windowScene = window?.windowScene else {
+            print("ERROR: Could not access window scene")
+            return
+        }
+        
+        print("SCENE DELEGATE: Resetting to login screen")
+        
+        // Get the main storyboard
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        
+        // Instantiate the initial view controller (which should be the login screen)
+        if let initialViewController = storyboard.instantiateInitialViewController() {
+            // Create a new window to ensure clean state
+            window = UIWindow(windowScene: windowScene)
+            window?.rootViewController = initialViewController
+            window?.makeKeyAndVisible()
+            print("SCENE DELEGATE: Successfully reset to login screen")
+        } else {
+            print("ERROR: Could not instantiate initial view controller from storyboard")
+        }
+    }
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
@@ -20,6 +43,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         // Check if user is already logged in
         if let savedUserId = UserDefaults.standard.string(forKey: "userId") {
+            // Log auto-login attempt
+            print("AUTO-LOGIN: Found saved user ID \(savedUserId)")
+            
+            // Skip auto-login if manual logout just happened
+            if UserDefaults.standard.bool(forKey: "manualLogout") {
+                print("AUTO-LOGIN: Skipping due to manual logout flag")
+                UserDefaults.standard.removeObject(forKey: "manualLogout")
+                UserDefaults.standard.synchronize()
+                return
+            }
+            
             // Restore user data
             DataControlller.shared.setID(id: savedUserId)
             
@@ -41,8 +75,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 window = UIWindow(windowScene: windowScene)
                 window?.rootViewController = mainTabBar
                 window?.makeKeyAndVisible()
-                print("Auto-login successful: Bypassing login screen")
+                print("AUTO-LOGIN: Success - Bypassing login screen")
             }
+        } else {
+            print("AUTO-LOGIN: No saved credentials found")
         }
     }
 

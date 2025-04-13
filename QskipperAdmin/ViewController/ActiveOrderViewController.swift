@@ -218,12 +218,90 @@ class ActiveOrderViewController:UIViewController, UITableViewDataSource, UITable
     }
     
     private func setupNavigationBar() {
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
+        // Create refresh button
+        let refreshBarButton = UIBarButtonItem(
             image: UIImage(systemName: "arrow.clockwise"),
             style: .plain,
             target: self,
             action: #selector(refreshData)
         )
+        
+        // Create logout button
+        let logoutBarButton = UIBarButtonItem(
+            title: "Logout",
+            style: .plain,
+            target: self,
+            action: #selector(logoutButtonTapped)
+        )
+        
+        // Set both buttons
+        navigationItem.rightBarButtonItems = [logoutBarButton, refreshBarButton]
+    }
+    
+    @objc func logoutButtonTapped() {
+        print("Logout button tapped in ActiveOrderViewController")
+        
+        // Show confirmation alert
+        let alert = UIAlertController(
+            title: "Logout",
+            message: "Are you sure you want to logout?",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        alert.addAction(UIAlertAction(title: "Logout", style: .destructive) { _ in
+            self.performLogout()
+        })
+        
+        present(alert, animated: true)
+    }
+    
+    private func performLogout() {
+        print("Performing logout from ActiveOrderViewController...")
+        
+        // Reset data controller
+        DataControlller.shared.reset()
+        
+        // Clear UserDefaults
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: "userId")
+        defaults.removeObject(forKey: "userEmail")
+        defaults.removeObject(forKey: "userPassword")
+        defaults.removeObject(forKey: "restaurantId")
+        defaults.removeObject(forKey: "restaurantName")
+        defaults.removeObject(forKey: "restaurantCuisine")
+        defaults.removeObject(forKey: "restaurantEstimatedTime")
+        
+        // Set manual logout flag to prevent auto-login
+        defaults.set(true, forKey: "manualLogout")
+        defaults.synchronize()
+        
+        // Use SceneDelegate helper to return to login screen
+        if let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate {
+            print("Using SceneDelegate helper to reset to login screen")
+            sceneDelegate.resetToLoginScreen()
+        } else {
+            print("ERROR: Could not access SceneDelegate")
+            // Fallback to direct reset
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            if let initialViewController = storyboard.instantiateInitialViewController() {
+                UIApplication.shared.windows.first?.rootViewController = initialViewController
+                UIApplication.shared.windows.first?.makeKeyAndVisible()
+                print("Manually reset to login screen")
+            } else {
+                // Last resort
+                if let tabBarController = self.tabBarController {
+                    tabBarController.dismiss(animated: true) {
+                        print("Dismissed to previous screen as fallback")
+                    }
+                } else {
+                    self.dismiss(animated: true) {
+                        print("Dismissed current controller as fallback")
+                    }
+                }
+            }
+        }
     }
     
     override func viewDidLoad() {

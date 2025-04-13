@@ -35,13 +35,16 @@ class DataControlller{
     }
     
     func reset(){
-        _currentUser.id = ""
-        _restaurant.user = ""
-        _restaurant.id = ""
-        _allProduct.removeAll()
-        _restaurant.restaurant_Name = ""
-        _restaurant.estimatedTime = 0
+        print("DATA RESET: Starting complete data reset")
         
+        // Create new instances of all objects rather than just clearing properties
+        _currentUser = user()
+        _restaurant = Restaurant()
+        _product = Product()
+        _orderResponse = orderResponse()
+        _allProduct = []
+        
+        print("DATA RESET: All data objects replaced with new instances")
     }
     
     var restaurant :Restaurant {
