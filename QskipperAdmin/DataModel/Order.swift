@@ -18,12 +18,17 @@ struct OrderProduct:Codable{
     var totalPrice :String = ""
     var id :String = ""
     var items:[item] = []
+    var takeAway :Bool = true
+    var scheduleDate:String?
+    
     
     enum CodingKeys :String ,CodingKey{
         case status = "status"
         case totalPrice="totalAmount"
         case id = "_id"
         case items
+        case takeAway = "takeAway"
+        case scheduleDate = "scheduleDate"
     }
 }
 struct item:Codable{
