@@ -70,7 +70,7 @@ class LoginAndRegisterViewController: UIViewController {
              do {
                  if let response = try await Networking.shared.registerUser(currentUser: currentUser) {
                      DataControlller.shared.setID(id: response.id)
-                     
+                     navigateToHomeScreen()
                      await MainActor.run {
                          // Update the UI with the response
 

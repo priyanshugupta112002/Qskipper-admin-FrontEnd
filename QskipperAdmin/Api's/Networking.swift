@@ -11,7 +11,8 @@ import Foundation
 class Networking {
     
     static let shared = Networking()
-    let baseUrl = URL(string: "https://qskipperbackend.onrender.com/")!
+    let baseUrl = URL(string: "http://localhost:3000/")!
+    
     
     
     enum NetworkingError : Error , LocalizedError{
@@ -51,7 +52,7 @@ class Networking {
         let userResponse = try decoder.decode(User.self, from: data)
         
         
-        
+        debugPrint(userResponse)
         return userResponse
         
         

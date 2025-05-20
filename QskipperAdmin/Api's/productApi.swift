@@ -12,8 +12,8 @@ class productApi{
     
     static let shared = productApi()
 //    let baseUrl = URL(string: "https://queueskipperbackend.onrender.com/")!
-    let baseUrl = URL(string: "https://qskipperbackend.onrender.com/")!
-    
+    let baseUrl = URL(string: "http://localhost:3000/")!
+//    https://qskipperbackend.onrender.com/
     // Image cache
     private let imageCache = NSCache<NSString, UIImage>()
     private let fileManager = FileManager.default
