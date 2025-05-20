@@ -13,7 +13,7 @@ class LoginAndRegisterViewController: UIViewController {
 
     @IBOutlet var UserLogin_id: UITextField!
     @IBOutlet var userLoginPassword: UITextField!
-    
+
 
     
     @IBOutlet var userRegisterEmailId: UITextField!
@@ -132,9 +132,39 @@ class LoginAndRegisterViewController: UIViewController {
                 }
             } catch {
                 await MainActor.run {
-                    // Handle errors on the main thread
-                    print("login failed: \(error)")
-                }
+                    
+                    let alert = UIAlertController(
+                        title: "Invalid Credentials",
+                        message: "You entered an incorrect email or password. Please try again.",
+                        preferredStyle: .alert
+                    )
+                    alert.addAction(UIAlertAction(title: "OK", style: .cancel))
+                    
+                                print("Login failed: \(error)")
+                    
+                    // Present the alert
+                    if let topController = UIApplication.shared.connectedScenes
+                        .compactMap({ $0 as? UIWindowScene })
+                        .flatMap({ $0.windows })
+                        .first(where: { $0.isKeyWindow })?
+                        .rootViewController {
+                        
+                        // Present from the top-most visible view controller
+                        var current = topController
+                        while let presented = current.presentedViewController {
+                            current = presented
+                        }
+                        current.present(alert, animated: true, completion: nil)
+                    }
+                    
+                    
+                    
+                    
+                    }
+              
+            
+                
+      
             }
             
 //            do{
