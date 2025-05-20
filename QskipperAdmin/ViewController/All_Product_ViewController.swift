@@ -85,7 +85,7 @@ class All_Product_ViewController: UIViewController , UICollectionViewDataSource 
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "All_Products", for: indexPath) as! All_Product_CollectionViewCell
 //        cell.Product_Image.image = DataControlller.shared.get_all_product[indexPath.row].
         Task{
-            if let url = URL(string: "http://localhost:3000/get_product_photo/\(DataControlller.shared.get_product_row(index: indexPath.row)._id)"){
+            if let url = URL(string: "https://qskipperbackend.onrender.com/get_product_photo/\(DataControlller.shared.get_product_row(index: indexPath.row)._id)"){
                 
                 if let image = try? await productApi.shared.fetchImage(from: url){
                     debugPrint(image)

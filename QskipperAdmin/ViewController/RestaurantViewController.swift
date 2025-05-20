@@ -143,7 +143,7 @@ class RestaurantViewController: UIViewController, UIImagePickerControllerDelegat
         if let formData = createFormData(image: (currentImage?.image)!, restaurantName: Restaurant_Name.text!, cuisines: selectedRowAt, estimatedTime: Int(EstimatedTime.text!)!  , userId :DataControlller.shared.Currentuser.id) {
             
       
-              var request = URLRequest(url: URL(string: "http://localhost:3000/register-restaurant")!)
+              var request = URLRequest(url: URL(string: "https://qskipperbackend.onrender.com/register-restaurant")!)
               request.httpMethod = "POST"
 
         
@@ -258,7 +258,7 @@ class RestaurantViewController: UIViewController, UIImagePickerControllerDelegat
             debugPrint(DataControlller.shared.restaurant.restaurant_Name)
             debugPrint(DataControlller.shared.restaurant.id )
             print("cxecwe")
-              var request = URLRequest(url: URL(string: "http://localhost:3000/create-product")!)
+              var request = URLRequest(url: URL(string: "https://qskipperbackend.onrender.com/create-product")!)
               request.httpMethod = "POST"
 
             request.setValue(formData.contentType, forHTTPHeaderField: "Content-Type")
